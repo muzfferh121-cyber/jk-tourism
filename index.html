@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>J&K Tourism AI - Jammu & Kashmir Guide</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --saffron:#FF6B1A;--dal:#1A6B8A;--snow:#F8F6F0;
+  --forest:#2C6E49;--gold:#D4A017;--night:#1A1A2E;
+  --text:#2C2C2A;--muted:#6B6B6A;
+}
+html,body{height:100%;overflow-x:hidden;font-family:'Inter',sans-serif;background:var(--snow);color:var(--text)}
+
+/* SPLASH */
+#splash{position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,#0F0C29,#302b63,#24243e);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.splash-emoji{font-size:60px;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.splash-title{font-family:'Playfair Display',serif;font-size:28px;color:#fff;margin:10px 0 4px;text-align:center}
+.splash-sub{font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.own-tag{font-size:11px;color:var(--gold);background:rgba(212,160,23,0.15);border:1px solid rgba(212,160,23,0.3);padding:4px 14px;border-radius:20px;margin-bottom:28px}
+.card{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);border-radius:20px;padding:22px;width:100%;max-width:370px;backdrop-filter:blur(12px)}
+.tabs{display:flex;background:rgba(0,0,0,0.3);border-radius:10px;padding:3px;margin-bottom:18px}
+.tab{flex:1;padding:8px;border:none;background:transparent;color:rgba(255,255,255,0.45);font-size:13px;font-weight:500;border-radius:8px;cursor:pointer;font-family:inherit;transition:all .2s}
+.tab.on{background:var(--saffron);color:#fff}
+.flabel{font-size:10px;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.finput{width:100%;padding:10px 13px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:#fff;font-size:14px;outline:none;margin-bottom:11px;font-family:inherit;transition:border-color .2s}
+.finput:focus{border-color:var(--saffron)}
+.finput::placeholder{color:rgba(255,255,255,0.28)}
+.pbtn{width:100%;padding:12px;background:linear-gradient(135deg,var(--saffron),var(--gold));border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:2px;transition:opacity .2s}
+.pbtn:hover{opacity:.88}
+.gbtn{width:100%;padding:10px;background:transparent;border:1px solid rgba(255,255,255,0.2);border-radius:12px;color:rgba(255,255,255,0.6);font-size:13px;cursor:pointer;margin-top:7px;font-family:inherit;transition:all .2s}
+.gbtn:hover{border-color:rgba(255,255,255,0.4);color:#fff}
+.fmsg{font-size:12px;text-align:center;margin-top:7px;min-height:16px}
+.fmsg.err{color:#FF6B6B}.fmsg.ok{color:#6FCF97}
+
+/* ADMIN */
+#adminOverlay{position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,0.72);display:none;align-items:center;justify-content:center;padding:20px}
+.acard{background:#fff;border-radius:20px;padding:22px;width:100%;max-width:340px;max-height:82vh;overflow-y:auto}
+.atitle{font-size:17px;font-weight:700;color:var(--night);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.srow{display:flex;gap:8px;margin-bottom:14px}
+.sbox{flex:1;background:#EBF5FB;border-radius:12px;padding:12px;text-align:center}
+.snum{font-size:26px;font-weight:700;color:var(--dal)}
+.slbl{font-size:10px;color:var(--muted);margin-top:1px}
+.urow{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.05)}
+.uav{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--dal),var(--night));display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:600;flex-shrink:0}
+.unm{font-size:13px;font-weight:500;color:var(--text)}
+.umt{font-size:10px;color:var(--muted)}
+.ulbl{font-size:10px;padding:2px 7px;background:#EBF5FB;color:var(--dal);border-radius:7px}
+.cbtn{width:100%;padding:10px;background:var(--dal);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:13px;margin-top:12px;font-family:inherit}
+
+/* MAIN */
+#app{display:none;flex-direction:column;min-height:100vh}
+.hdr{background:linear-gradient(135deg,var(--night),#16213E,#0F3460);position:sticky;top:0;z-index:500}
+.hdr-in{padding:11px 13px 9px;position:relative}
+.htop{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.htitle{display:flex;align-items:center;gap:8px}
+.hicon{width:35px;height:35px;background:linear-gradient(135deg,var(--saffron),var(--gold));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.ht h1{font-family:'Playfair Display',serif;font-size:16px;color:#fff;line-height:1.1}
+.ht p{font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:.7px;margin-top:1px}
+.hright{display:flex;align-items:center;gap:6px}
+.ubadge{display:flex;align-items:center;gap:4px;padding:5px 9px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:18px;font-size:10px;color:rgba(255,255,255,0.7);cursor:pointer}
+.udot{width:6px;height:6px;background:#6FCF97;border-radius:50%}
+.lout{padding:4px 9px;background:rgba(255,107,26,0.2);border:1px solid rgba(255,107,26,0.3);border-radius:18px;font-size:10px;color:var(--saffron);cursor:pointer;border-style:solid}
+.lbar{display:flex;gap:5px}
+.lbtn{padding:4px 9px;border-radius:15px;border:1px solid rgba(255,255,255,0.22);background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.58);font-size:11px;cursor:pointer;transition:all .2s;font-family:inherit}
+.lbtn.on{background:var(--saffron);border-color:var(--saffron);color:#fff;font-weight:600}
+.ownbar{background:rgba(212,160,23,0.11);border-top:1px solid rgba(212,160,23,0.18);padding:5px 13px;text-align:center;font-size:10px;color:var(--gold);font-weight:500}
+.cats{padding:9px 11px 5px;background:#fff;border-bottom:1px solid rgba(0,0,0,0.06)}
+.cscroll{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.cscroll::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;display:flex;align-items:center;gap:3px;padding:6px 10px;border-radius:15px;border:1.5px solid rgba(0,0,0,0.08);background:#fff;font-size:11px;font-weight:500;cursor:pointer;transition:all .2s;color:var(--muted);white-space:nowrap}
+.chip.on{border-color:var(--dal);background:#E8F4F8;color:var(--dal)}
+.main{padding:11px;flex:1}
+.slbl2{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.7px;text-transform:uppercase;margin-bottom:6px}
+.qgrid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:11px}
+.qcard{padding:9px;border-radius:10px;border:1px solid rgba(0,0,0,0.07);background:#fff;cursor:pointer;transition:all .2s;font-size:11px;line-height:1.4;color:var(--text)}
+.qcard:hover,.qcard:active{border-color:var(--dal);background:#EBF5FB;transform:translateY(-1px)}
+.qi{font-size:15px;margin-bottom:3px;display:block}
+.qt{font-size:10px;color:var(--muted);margin-top:1px}
+.chat{background:#fff;border-radius:13px;border:1px solid rgba(0,0,0,0.07);overflow:hidden;margin-bottom:11px}
+.msgs{min-height:160px;max-height:300px;overflow-y:auto;padding:11px;display:flex;flex-direction:column;gap:9px;scroll-behavior:smooth}
+.msg{display:flex;gap:6px;align-items:flex-start}
+.msg.u{flex-direction:row-reverse}
+.mav{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.msg.b .mav{background:linear-gradient(135deg,var(--dal),var(--night));color:#fff}
+.msg.u .mav{background:linear-gradient(135deg,var(--saffron),var(--gold));color:#fff}
+.mbub{max-width:83%;padding:9px 11px;border-radius:12px;font-size:12.5px;line-height:1.6}
+.msg.b .mbub{background:#EBF5FB;border:1px solid rgba(26,107,138,0.1);color:var(--text);border-top-left-radius:3px}
+.msg.u .mbub{background:linear-gradient(135deg,var(--dal),#1A4A6B);color:#fff;border-top-right-radius:3px}
+.dots{display:flex;gap:4px;align-items:center;padding:3px 0}
+.dots span{width:5px;height:5px;background:var(--dal);border-radius:50%;animation:bop 1.2s infinite}
+.dots span:nth-child(2){animation-delay:.2s}
+.dots span:nth-child(3){animation-delay:.4s}
+@keyframes bop{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-5px);opacity:1}}
+.irow{display:flex;gap:6px;padding:8px 10px;border-top:1px solid rgba(0,0,0,0.06);background:#FAFAFA}
+.cinput{flex:1;padding:8px 11px;border-radius:17px;border:1.5px solid rgba(0,0,0,0.1);font-size:13px;outline:none;background:#fff;transition:border-color .2s;font-family:inherit}
+.cinput:focus{border-color:var(--dal)}
+.sbtn{width:34px;height:34px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--dal),var(--night));color:#fff;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .15s,opacity .15s}
+.sbtn:disabled{opacity:.45;cursor:not-allowed}
+.igrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:11px}
+.icard{padding:11px;border-radius:11px;border:1px solid rgba(0,0,0,0.07);background:#fff;cursor:pointer;transition:all .2s}
+.icard:hover,.icard:active{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+.icico{font-size:20px;margin-bottom:4px}
+.ictit{font-size:12px;font-weight:600;color:var(--text)}
+.icsub{font-size:10px;color:var(--muted);margin-top:1px}
+.foot{text-align:center;padding:12px;font-size:10px;color:var(--muted);border-top:1px solid rgba(0,0,0,0.06);background:#fff}
+.foot strong{color:var(--saffron)}
+.mbub ul{padding-left:14px}
+.mbub li{margin-bottom:3px}
+.mbub strong{font-weight:600}
+
+/* API KEY SETUP */
+.apibox{background:#FFF8E7;border:1px solid rgba(212,160,23,0.3);border-radius:12px;padding:12px;margin-bottom:11px}
+.apibox p{font-size:11px;color:#7A5200;margin-bottom:8px;line-height:1.5}
+.apiinput{width:100%;padding:8px 11px;border-radius:9px;border:1px solid rgba(212,160,23,0.4);font-size:12px;outline:none;font-family:monospace;background:#fff;transition:border-color .2s}
+.apiinput:focus{border-color:var(--gold)}
+.apibtn{padding:7px 14px;background:var(--gold);border:none;border-radius:9px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;margin-top:6px;font-family:inherit;margin-right:6px}
+.apilink{font-size:11px;color:var(--dal);cursor:pointer;text-decoration:underline}
+</style>
+</head>
+<body>
+
+<!-- SPLASH + LOGIN -->
+<div id="splash">
+  <div class="splash-emoji">🏔️</div>
+  <div class="splash-title">J&K Tourism AI</div>
+  <div class="splash-sub">Jammu &amp; Kashmir</div>
+  <div class="own-tag">© Created &amp; Owned By You · All Rights Reserved</div>
+  <div class="card">
+    <div class="tabs">
+      <button class="tab on" onclick="switchTab('login')">Login</button>
+      <button class="tab" onclick="switchTab('reg')">Register</button>
+    </div>
+    <div id="loginF">
+      <div class="flabel">Username</div>
+      <input class="finput" id="lu" type="text" placeholder="Enter username" autocomplete="username"/>
+      <div class="flabel">Password</div>
+      <input class="finput" id="lp" type="password" placeholder="Enter password" autocomplete="current-password"/>
+      <button class="pbtn" onclick="doLogin()">🔐 Login</button>
+      <button class="gbtn" onclick="doGuest()">👤 Continue as Guest</button>
+      <div class="fmsg" id="lmsg"></div>
+    </div>
+    <div id="regF" style="display:none">
+      <div class="flabel">Full Name</div>
+      <input class="finput" id="rn" type="text" placeholder="Your full name"/>
+      <div class="flabel">Username</div>
+      <input class="finput" id="ru" type="text" placeholder="Choose username" autocomplete="username"/>
+      <div class="flabel">Password</div>
+      <input class="finput" id="rp" type="password" placeholder="Min 4 characters" autocomplete="new-password"/>
+      <button class="pbtn" onclick="doReg()">✅ Create Account</button>
+      <div class="fmsg" id="rmsg"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="adminOverlay">
+  <div class="acard">
+    <div class="atitle">📊 Admin Dashboard <span id="adate" style="font-size:11px;color:var(--muted);font-weight:400"></span></div>
+    <div class="srow">
+      <div class="sbox"><div class="snum" id="st1">0</div><div class="slbl">Total Users</div></div>
+      <div class="sbox"><div class="snum" id="st2">0</div><div class="slbl">Guests</div></div>
+      <div class="sbox"><div class="snum" id="st3">0</div><div class="slbl">Registered</div></div>
+    </div>
+    <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">Registered Users</div>
+    <div id="ulist"></div>
+    <button class="cbtn" onclick="document.getElementById('adminOverlay').style.display='none'">Close</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <div class="hdr">
+    <div class="hdr-in">
+      <div class="htop">
+        <div class="htitle">
+          <div class="hicon">🏔️</div>
+          <div class="ht">
+            <h1 id="at">J&K Tourism AI</h1>
+            <p id="as">Jammu &amp; Kashmir · Powered by AI</p>
+          </div>
+        </div>
+        <div class="hright">
+          <div class="ubadge" id="ubadge" onclick="tryAdmin()">
+            <div class="udot"></div>
+            <span id="ubn">User</span>
+          </div>
+          <button class="lout" onclick="logout()">Logout</button>
+        </div>
+      </div>
+      <div class="lbar">
+        <button class="lbtn on" onclick="setL('en')">🇬🇧 EN</button>
+        <button class="lbtn" onclick="setL('ur')">اردو</button>
+        <button class="lbtn" onclick="setL('hi')">हिंदी</button>
+        <button class="lbtn" onclick="setL('ks')">کٲشُر</button>
+      </div>
+    </div>
+  </div>
+  <div class="ownbar">🏔️ J&amp;K Tourism AI · Free for Everyone · © All Rights Reserved</div>
+  <div class="cats">
+    <div class="cscroll">
+      <div class="chip on" onclick="setCat(this,'places')">🏔️ <span id="c1">Places</span></div>
+      <div class="chip" onclick="setCat(this,'food')">🍛 <span id="c2">Food</span></div>
+      <div class="chip" onclick="setCat(this,'hotels')">🏨 <span id="c3">Hotels</span></div>
+      <div class="chip" onclick="setCat(this,'culture')">🎨 <span id="c4">Culture</span></div>
+      <div class="chip" onclick="setCat(this,'travel')">🚗 <span id="c5">Travel</span></div>
+      <div class="chip" onclick="setCat(this,'festivals')">🪔 <span id="c6">Festivals</span></div>
+      <div class="chip" onclick="setCat(this,'shopping')">🧣 <span id="c7">Shopping</span></div>
+    </div>
+  </div>
+  <div class="main">
+    <!-- API KEY BOX -->
+    <div class="apibox" id="apibox">
+      <p>⚙️ <strong>One-time setup:</strong> To enable AI chat, enter your free Anthropic API key below. <a class="apilink" onclick="window.open('https://console.anthropic.com/','_blank')">Get free key at console.anthropic.com</a></p>
+      <input class="apiinput" id="apiKeyInput" type="password" placeholder="sk-ant-api03-..."/>
+      <button class="apibtn" onclick="saveKey()">Save Key</button>
+      <span id="keyStatus" style="font-size:11px;color:var(--forest)"></span>
+    </div>
+
+    <div class="slbl2" id="ql">✦ Quick Questions</div>
+    <div class="qgrid" id="qgrid"></div>
+    <div class="chat">
+      <div class="msgs" id="msgs"></div>
+      <div class="irow">
+        <input class="cinput" id="ci" placeholder="Ask anything about J&K..." onkeydown="if(event.key==='Enter')send()"/>
+        <button class="sbtn" id="sb" onclick="send()">➤</button>
+      </div>
+    </div>
+    <div class="igrid">
+      <div class="icard" onclick="qa('Best time to visit Kashmir month by month?')"><div class="icico">🌸</div><div class="ictit">Best Season</div><div class="icsub">When to visit</div></div>
+      <div class="icard" onclick="qa('How to reach Jammu Kashmir by air train and road?')"><div class="icico">✈️</div><div class="ictit">How to Reach</div><div class="icsub">Air, rail, road</div></div>
+      <div class="icard" onclick="qa('What is Kashmiri Wazwan? Tell me all famous dishes.')"><div class="icico">🍖</div><div class="ictit">Wazwan Feast</div><div class="icsub">Royal cuisine</div></div>
+      <div class="icard" onclick="qa('Tell me about Dal Lake houseboats and Shikara rides.')"><div class="icico">🛶</div><div class="ictit">Dal Lake</div><div class="icsub">Shikara & Houseboats</div></div>
+    </div>
+  </div>
+  <div class="foot"><strong>J&K Tourism AI</strong> · Free for Everyone · Made with ❤️ for Jammu &amp; Kashmir<br/><span style="opacity:.55">© Owned by App Creator · Powered by Anthropic Claude</span></div>
+</div>
+
+<script>
+// ── STORAGE HELPERS ──
+const G=k=>{ try{return JSON.parse(localStorage.getItem(k)||'null')}catch{return null}};
+const S=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+const getUsers=()=>G('jk_users')||[];
+const saveUsers=u=>S('jk_users',u);
+const getSess=()=>G('jk_sess');
+const setSess=s=>S('jk_sess',s);
+const clearSess=()=>localStorage.removeItem('jk_sess');
+const getKey=()=>localStorage.getItem('jk_apikey')||'';
+const setKey=k=>localStorage.setItem('jk_apikey',k);
+const incGuest=()=>{const n=(G('jk_gc')||0)+1;S('jk_gc',n);return n};
+const getGC=()=>G('jk_gc')||0;
+
+const OWNER={u:'admin',p:'jktourism2024'};
+
+// ── AUTH ──
+function switchTab(t){
+  document.getElementById('loginF').style.display=t==='login'?'block':'none';
+  document.getElementById('regF').style.display=t==='reg'?'block':'none';
+  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('on',['login','reg'][i]===t));
+}
+function doLogin(){
+  const u=document.getElementById('lu').value.trim();
+  const p=document.getElementById('lp').value.trim();
+  const m=document.getElementById('lmsg');
+  if(!u||!p){m.className='fmsg err';m.textContent='Fill all fields';return}
+  if(u===OWNER.u&&p===OWNER.p){setSess({u,name:'Admin',owner:true});launch();return}
+  const found=getUsers().find(x=>x.u===u&&x.p===p);
+  if(found){setSess({u:found.u,name:found.name,owner:false});launch()}
+  else{m.className='fmsg err';m.textContent='❌ Wrong username or password'}
+}
+function doReg(){
+  const name=document.getElementById('rn').value.trim();
+  const u=document.getElementById('ru').value.trim();
+  const p=document.getElementById('rp').value.trim();
+  const m=document.getElementById('rmsg');
+  if(!name||!u||!p){m.className='fmsg err';m.textContent='Fill all fields';return}
+  if(p.length<4){m.className='fmsg err';m.textContent='Password needs 4+ chars';return}
+  const users=getUsers();
+  if(users.find(x=>x.u===u)){m.className='fmsg err';m.textContent='Username taken';return}
+  users.push({u,name,p,at:new Date().toISOString()});
+  saveUsers(users);
+  m.className='fmsg ok';m.textContent='✅ Account created!';
+  setTimeout(()=>{setSess({u,name,owner:false});launch()},700);
+}
+function doGuest(){
+  const n=incGuest();
+  setSess({u:'guest_'+n,name:'Guest #'+n,owner:false,guest:true});
+  launch();
+}
+function launch(){
+  document.getElementById('splash').style.display='none';
+  document.getElementById('app').style.display='flex';
+  const s=getSess();
+  document.getElementById('ubn').textContent=s.owner?'👑 Owner':s.name.split(' ')[0];
+  const k=getKey();
+  if(k){document.getElementById('apibox').style.display='none';document.getElementById('keyStatus').textContent=''}
+  renderQ();
+  setTimeout(()=>addBot(LANGS[lang].welcome),400);
+}
+function logout(){clearSess();location.reload()}
+function tryAdmin(){const s=getSess();if(s&&s.owner)openAdmin()}
+
+// ── ADMIN ──
+function openAdmin(){
+  const users=getUsers();
+  document.getElementById('adate').textContent=new Date().toLocaleDateString('en-IN');
+  document.getElementById('st1').textContent=users.length+getGC();
+  document.getElementById('st2').textContent=getGC();
+  document.getElementById('st3').textContent=users.length;
+  const d=document.getElementById('ulist');
+  d.innerHTML=users.length?users.map(u=>`<div class="urow"><div class="uav">${u.name[0].toUpperCase()}</div><div style="flex:1"><div class="unm">${u.name}</div><div class="umt">@${u.u} · ${new Date(u.at).toLocaleDateString('en-IN')}</div></div><span class="ulbl">EN</span></div>`).join(''):'<p style="font-size:12px;color:var(--muted);text-align:center;padding:8px">No registered users yet</p>';
+  document.getElementById('adminOverlay').style.display='flex';
+}
+
+// ── API KEY ──
+function saveKey(){
+  const k=document.getElementById('apiKeyInput').value.trim();
+  if(!k.startsWith('sk-')){document.getElementById('keyStatus').textContent='❌ Invalid key format';return}
+  setKey(k);
+  document.getElementById('apibox').style.display='none';
+  document.getElementById('keyStatus').textContent='✅ Key saved!';
+}
+window.onload=()=>{const s=getSess();if(s)launch()};
+
+// ── LANGUAGE DATA ──
+let lang='en', cat='places', busy=false, hist=[];
+const LANGS={
+  en:{at:'J&K Tourism AI',as:'Jammu & Kashmir · AI',ph:'Ask anything about J&K...',ql:'✦ Quick Questions',
+    cats:['Places','Food','Hotels','Culture','Travel','Festivals','Shopping'],
+    welcome:`🙏 <strong>Welcome to J&K Tourism AI!</strong><br><br>I'm your free AI guide for Jammu & Kashmir — the paradise on Earth!<br><br>🏔️ <strong>Places</strong> · 🍛 <strong>Food</strong> · 🏨 <strong>Hotels</strong> · 🎨 <strong>Culture</strong> · 🌸 <strong>Best season</strong><br><br>Type your question below or tap a quick question! 👇`,
+    q:{places:[{i:'🏔️',q:'Top tourist places in Kashmir to visit',t:'Must visit'},{i:'⛷️',q:'Gulmarg skiing and gondola ride details',t:'Adventure'},{i:'🌊',q:'Famous tourist places in Jammu city',t:'Jammu'},{i:'🛕',q:'Vaishno Devi yatra complete information',t:'Pilgrimage'}],food:[{i:'🍖',q:'What is Wazwan? All famous Kashmiri dishes',t:'Royal cuisine'},{i:'☕',q:'Kashmiri Kahwa tea recipe and benefits',t:'Tea'},{i:'🍚',q:'Best street food in Srinagar to try',t:'Street food'},{i:'🥩',q:'Rogan Josh recipe and history of Kashmir',t:'Classic'}],hotels:[{i:'🏨',q:'Best budget hotels in Srinagar with prices',t:'Budget'},{i:'⛵',q:'Famous houseboats on Dal Lake to stay',t:'Unique stay'},{i:'🏕️',q:'Camping options in Pahalgam and Gulmarg',t:'Adventure'},{i:'🌟',q:'Luxury resorts in Kashmir top list',t:'Luxury'}],culture:[{i:'🧣',q:'Pashmina shawls of Kashmir complete guide',t:'Craft'},{i:'🎭',q:'Traditional dances and music of J&K',t:'Arts'},{i:'🕌',q:'Famous mosques and shrines in Kashmir',t:'Heritage'},{i:'🎨',q:'Kashmiri carpets and handicrafts guide',t:'Shopping'}],travel:[{i:'✈️',q:'How to reach Kashmir by air train road',t:'Getting there'},{i:'🌡️',q:'Best time to visit Kashmir each month',t:'Weather'},{i:'💰',q:'Kashmir 7 days budget travel itinerary',t:'Budget plan'},{i:'🔒',q:'Safety tips for tourists visiting Kashmir',t:'Safety'}],festivals:[{i:'🌷',q:'Srinagar Tulip Garden festival details',t:'Spring'},{i:'🪔',q:'Eid and Baisakhi celebrations in J&K',t:'Festivals'},{i:'🎪',q:'Hemis festival Ladakh all details',t:'Culture'},{i:'❄️',q:'Winter sports festivals in Gulmarg',t:'Winter'}],shopping:[{i:'🧣',q:'Where to buy authentic Pashmina Srinagar',t:'Pashmina'},{i:'🪴',q:'Kashmiri saffron buying guide best quality',t:'Saffron'},{i:'🛒',q:'Lal Chowk Srinagar shopping complete guide',t:'Market'},{i:'🎁',q:'Best souvenirs and gifts to buy from J&K',t:'Gifts'}]}},
+  ur:{at:'جے کے سیاحت AI',as:'جموں و کشمیر · AI',ph:'جموں و کشمیر کے بارے میں پوچھیں...',ql:'✦ فوری سوالات',
+    cats:['جگہیں','کھانا','ہوٹل','ثقافت','سفر','میلے','خریداری'],
+    welcome:`🙏 <strong>جے کے سیاحت AI میں خوش آمدید!</strong><br><br>میں جموں و کشمیر کے لیے آپ کا مفت AI گائیڈ ہوں۔<br><br>🏔️ سیاحتی مقامات · 🍛 کھانا · 🏨 ہوٹل · 🎨 ثقافت<br><br>نیچے سوال ٹائپ کریں! 👇`,
+    q:{places:[{i:'🏔️',q:'کشمیر میں سیاحتی مقامات بتائیں',t:'ضرور جائیں'},{i:'⛷️',q:'گلمرگ سکیئنگ کی معلومات',t:'ایڈونچر'},{i:'🌊',q:'جموں ضلع کے مشہور مقامات',t:'جموں'},{i:'🛕',q:'وشنو دیوی یاترا کی مکمل معلومات',t:'زیارت'}],food:[{i:'🍖',q:'وزوان کیا ہے؟ مشہور کشمیری کھانے',t:'شاہی کھانا'},{i:'☕',q:'کشمیری قہوہ بنانے کا طریقہ',t:'چائے'},{i:'🍚',q:'سرینگر کی مشہور اسٹریٹ فوڈ',t:'اسٹریٹ فوڈ'},{i:'🥩',q:'رگن جوش ترکیب اور تاریخ',t:'کلاسک'}],hotels:[{i:'🏨',q:'سرینگر میں بجٹ ہوٹل کی فہرست',t:'بجٹ'},{i:'⛵',q:'ڈل جھیل پر مشہور ہاؤس بوٹس',t:'منفرد'},{i:'🏕️',q:'پہلگام میں کیمپنگ آپشن',t:'ایڈونچر'},{i:'🌟',q:'کشمیر میں لگژری ریزورٹس',t:'لگژری'}],culture:[{i:'🧣',q:'کشمیری پشمینہ شالوں کی معلومات',t:'دستکاری'},{i:'🎭',q:'جے کے کے روایتی رقص اور موسیقی',t:'فنون'},{i:'🕌',q:'کشمیر کی مشہور مساجد اور مزارات',t:'ورثہ'},{i:'🎨',q:'کشمیری قالین اور دستکاری گائیڈ',t:'خریداری'}],travel:[{i:'✈️',q:'کشمیر کیسے پہنچیں ہوائی ریل سڑک',t:'سفر'},{i:'🌡️',q:'کشمیر جانے کا بہترین وقت',t:'موسم'},{i:'💰',q:'کشمیر 7 دن کا بجٹ پلان',t:'بجٹ'},{i:'🔒',q:'کشمیر میں سیاحوں کے لیے حفاظتی ٹپس',t:'حفاظت'}],festivals:[{i:'🌷',q:'سرینگر ٹیولپ گارڈن فیسٹیول',t:'بہار'},{i:'🪔',q:'جے کے میں عید اور بیساکھی',t:'تہوار'},{i:'🎪',q:'لداخ ہیمس فیسٹیول',t:'ثقافت'},{i:'❄️',q:'گلمرگ سردیوں کے تہوار',t:'سردی'}],shopping:[{i:'🧣',q:'سرینگر میں اصلی پشمینہ کہاں سے خریدیں',t:'پشمینہ'},{i:'🪴',q:'کشمیری زعفران خریدنے کا گائیڈ',t:'زعفران'},{i:'🛒',q:'لال چوک مارکیٹ سرینگر گائیڈ',t:'مارکیٹ'},{i:'🎁',q:'جے کے سے بہترین یادگاری تحائف',t:'تحائف'}]}},
+  hi:{at:'जे&के पर्यटन AI',as:'जम्मू और कश्मीर · AI',ph:'जम्मू-कश्मीर के बारे में पूछें...',ql:'✦ त्वरित प्रश्न',
+    cats:['स्थान','खाना','होटल','संस्कृति','यात्रा','त्यौहार','खरीदारी'],
+    welcome:`🙏 <strong>जे&के पर्यटन AI में स्वागत!</strong><br><br>मैं जम्मू और कश्मीर का आपका मुफ्त AI गाइड हूं।<br><br>🏔️ स्थान · 🍛 खाना · 🏨 होटल · 🎨 संस्कृति<br><br>नीचे सवाल टाइप करें! 👇`,
+    q:{places:[{i:'🏔️',q:'कश्मीर के टॉप पर्यटन स्थल',t:'जरूर देखें'},{i:'⛷️',q:'गुलमर्ग स्कीइंग और गोंडोला राइड',t:'रोमांच'},{i:'🌊',q:'जम्मू जिले के प्रसिद्ध स्थान',t:'जम्मू'},{i:'🛕',q:'वैष्णो देवी यात्रा की पूरी जानकारी',t:'तीर्थ'}],food:[{i:'🍖',q:'वाज़वान क्या है? कश्मीरी व्यंजन',t:'शाही भोजन'},{i:'☕',q:'कश्मीरी कहवा चाय रेसिपी',t:'चाय'},{i:'🍚',q:'श्रीनगर का प्रसिद्ध स्ट्रीट फूड',t:'स्ट्रीट फूड'},{i:'🥩',q:'रोगन जोश रेसिपी और इतिहास',t:'क्लासिक'}],hotels:[{i:'🏨',q:'श्रीनगर में बजट होटल सूची',t:'बजट'},{i:'⛵',q:'डल झील पर मशहूर हाउसबोट',t:'अनोखा'},{i:'🏕️',q:'पहलगाम में कैंपिंग विकल्प',t:'साहसिक'},{i:'🌟',q:'कश्मीर में लक्जरी रिसोर्ट',t:'विलासिता'}],culture:[{i:'🧣',q:'कश्मीरी पश्मीना शॉल की जानकारी',t:'शिल्प'},{i:'🎭',q:'जे&के के पारंपरिक नृत्य संगीत',t:'कला'},{i:'🕌',q:'कश्मीर की प्रसिद्ध मस्जिदें और दरगाह',t:'विरासत'},{i:'🎨',q:'कश्मीरी कालीन और हस्तशिल्प',t:'खरीदारी'}],travel:[{i:'✈️',q:'कश्मीर कैसे पहुंचें',t:'पहुंचना'},{i:'🌡️',q:'कश्मीर जाने का सबसे अच्छा समय',t:'मौसम'},{i:'💰',q:'कश्मीर 7 दिन बजट यात्रा',t:'बजट'},{i:'🔒',q:'कश्मीर में पर्यटक सुरक्षा टिप्स',t:'सुरक्षा'}],festivals:[{i:'🌷',q:'श्रीनगर ट्यूलिप गार्डन फेस्टिवल',t:'बसंत'},{i:'🪔',q:'जे&के में ईद और बैसाखी उत्सव',t:'त्यौहार'},{i:'🎪',q:'लद्दाख हेमिस फेस्टिवल विवरण',t:'संस्कृति'},{i:'❄️',q:'गुलमर्ग सर्दियों के उत्सव',t:'सर्दी'}],shopping:[{i:'🧣',q:'श्रीनगर में असली पश्मीना कहां मिलेगी',t:'पश्मीना'},{i:'🪴',q:'कश्मीरी केसर खरीदने का गाइड',t:'केसर'},{i:'🛒',q:'लाल चौक मार्केट श्रीनगर गाइड',t:'मार्केट'},{i:'🎁',q:'जे&के से सबसे अच्छे स्मारिका',t:'उपहार'}]}},
+  ks:{at:'جے کے سیاحت AI',as:'جموں و کشمیر · AI',ph:'جموں و کشمیر بٲبت پرٛسن کرو...',ql:'✦ سوالات',
+    cats:['جاے','کھیون','ہوٹل','تہذیب','سفر','میلا','خریدنی'],
+    welcome:`🙏 <strong>جے کے سیاحت AI ہُنز خوشامدید!</strong><br><br>میہ چھُس تُہُنز مفت AI رہنُما جموں تہ کشمیر۔<br><br>🏔️ سیاحتی تھاو · 🍛 کھیون · 🏨 ہوٹل · 🎨 تہذیب<br><br>نیٹھ سوال لیکھو! 👇`,
+    q:{places:[{i:'🏔️',q:'کشمیرس منز سیاحتی تھاو',t:'لازمی'},{i:'⛷️',q:'گُلمَرگ سکیئنگ معلومات',t:'ایڈونچر'},{i:'🌊',q:'جموں ضلعس منز مشہور تھاو',t:'جموں'},{i:'🛕',q:'وَیشنَو دیوی یاتر معلومات',t:'زیارت'}],food:[{i:'🍖',q:'وازوان چھا کیا؟ کشمیری کھانہ',t:'شاہی'},{i:'☕',q:'کشمیری کہوہ بناوُن ہَتھ',t:'چائے'},{i:'🍚',q:'سِرینگَر منز مشہور کھیون',t:'اسٹریٹ'},{i:'🥩',q:'رُگَن جوش تاریخ',t:'کلاسک'}],hotels:[{i:'🏨',q:'سِرینگَر منز بجٹ ہوٹل',t:'بجٹ'},{i:'⛵',q:'ڈَل دَریابس پیٹھ ہاؤس بوٹ',t:'منفرد'},{i:'🏕️',q:'پَہلگام منز کیمپنگ',t:'ایڈونچر'},{i:'🌟',q:'کشمیرس منز لگژری ریزورٹ',t:'لگژری'}],culture:[{i:'🧣',q:'کشمیری پشمینہ شال معلومات',t:'ہنر'},{i:'🎭',q:'جے کے ہُنز رقص تہ موسیقی',t:'فنون'},{i:'🕌',q:'کشمیرس منز مشہور مسیت',t:'ورثہ'},{i:'🎨',q:'کشمیری قالین گائیڈ',t:'خریدنی'}],travel:[{i:'✈️',q:'کشمیرس کس طرح وتُن',t:'سفر'},{i:'🌡️',q:'کشمیرس واتُن ہُنز بہترین وقت',t:'موسم'},{i:'💰',q:'کشمیر 7 رات بجٹ پلان',t:'بجٹ'},{i:'🔒',q:'کشمیرس منز حفاظت ٹپس',t:'حفاظت'}],festivals:[{i:'🌷',q:'سِرینگَر ٹیولپ گارڈن میلہ',t:'بہار'},{i:'🪔',q:'جے کے منز عید تہ بیساکھی',t:'میلا'},{i:'🎪',q:'لداخ ہیمس میلہ',t:'تہذیب'},{i:'❄️',q:'گُلمَرگ سردیوں میلا',t:'سردی'}],shopping:[{i:'🧣',q:'سِرینگَر منز اصلی پشمینہ',t:'پشمینہ'},{i:'🪴',q:'کشمیری زعفران گائیڈ',t:'زعفران'},{i:'🛒',q:'لال چوک مارکیٹ گائیڈ',t:'بازار'},{i:'🎁',q:'جے کے ہُنز یادگاری تحفہ',t:'تحفہ'}]}},
+};
+
+function setL(l){
+  lang=l;
+  document.querySelectorAll('.lbtn').forEach((b,i)=>b.classList.toggle('on',['en','ur','hi','ks'][i]===l));
+  const L=LANGS[l];
+  document.getElementById('at').textContent=L.at;
+  document.getElementById('as').textContent=L.as;
+  document.getElementById('ci').placeholder=L.ph;
+  document.getElementById('ql').textContent=L.ql;
+  L.cats.forEach((c,i)=>document.getElementById('c'+(i+1)).textContent=c);
+  renderQ();
+  const rtl=l==='ur'||l==='ks';
+  document.getElementById('ci').style.direction=rtl?'rtl':'ltr';
+}
+function setCat(el,c){
+  document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));
+  el.classList.add('on');cat=c;renderQ();
+}
+function renderQ(){
+  const qs=LANGS[lang].q[cat]||LANGS[lang].q.places;
+  document.getElementById('qgrid').innerHTML=qs.map(q=>`<div class="qcard" onclick="qa('${q.q.replace(/'/g,"\\'")}')"><span class="qi">${q.i}</span><div style="font-size:11.5px;font-weight:500">${q.q.substring(0,42)}${q.q.length>42?'...':''}</div><div class="qt">${q.t}</div></div>`).join('');
+}
+function qa(q){document.getElementById('ci').value=q;send()}
+
+function addBot(html){
+  const d=document.getElementById('msgs');
+  const w=document.createElement('div');w.className='msg b';
+  w.innerHTML=`<div class="mav">🏔️</div><div class="mbub">${html}</div>`;
+  d.appendChild(w);d.scrollTop=d.scrollHeight;
+}
+function addUser(txt){
+  const d=document.getElementById('msgs');
+  const w=document.createElement('div');w.className='msg u';
+  w.innerHTML=`<div class="mav">👤</div><div class="mbub">${txt}</div>`;
+  d.appendChild(w);d.scrollTop=d.scrollHeight;
+}
+function addTyping(){
+  const d=document.getElementById('msgs');
+  const w=document.createElement('div');w.className='msg b';w.id='typing';
+  w.innerHTML=`<div class="mav">🏔️</div><div class="mbub"><div class="dots"><span></span><span></span><span></span></div></div>`;
+  d.appendChild(w);d.scrollTop=d.scrollHeight;
+}
+function removeTyping(){const t=document.getElementById('typing');if(t)t.remove()}
+
+async function send(){
+  if(busy)return;
+  const apiKey=getKey();
+  if(!apiKey){
+    document.getElementById('apibox').style.display='block';
+    document.getElementById('apiKeyInput').focus();
+    addBot('⚠️ Please enter your Anthropic API key in the yellow box above to enable AI chat!');
+    return;
+  }
+  const input=document.getElementById('ci');
+  const txt=input.value.trim();if(!txt)return;
+  input.value='';busy=true;
+  document.getElementById('sb').disabled=true;
+  addUser(txt);
+  hist.push({role:'user',content:txt});
+  addTyping();
+  const lmap={en:'Respond in English.',ur:'براہ کرم اردو میں جواب دیں۔',hi:'कृपया हिंदी में उत्तर दें।',ks:'کشمیری یا اردو زبانس منز جواب دیو۔'};
+  const sys=`You are an expert AI tourism guide for Jammu & Kashmir (J&K), India. Deep knowledge of:
+PLACES: Dal Lake, Gulmarg, Pahalgam, Sonamarg, Vaishno Devi, Jammu, Patnitop, Srinagar, Yusmarg, Doodhpathri, Betaab Valley, Aru Valley, Chandanwari, Shalimar Bagh, Nishat Bagh, Chashme Shahi, Shankaracharya Temple, Hazratbal, Jama Masjid, Raghunath Temple, Pari Mahal, Aharbal, Wular Lake, Manasbal Lake.
+FOOD: Wazwan, Rogan Josh, Yakhni, Dum Aloo, Kashmiri Pulao, Kahwa, Noon Chai (pink tea), Sheermal, Lavasa, Shufta, Modur Pulao, Haak, Lyodur Tschaman, Tabak Maaz, Gushtaba, Methi Maaz, Zafrani Kheer, Kulcha, Tujji, Harisa.
+HOTELS: Houseboats (Dal Lake), Taj Dal View, Vivanta, ITC, JKTDC hotels, budget guesthouses, camping, glamping.
+CULTURE: Pashmina, Sozni embroidery, Papier-mâché, Khatamband, Willow cricket bats, Walnut carving, Kashmiri carpets, Copperwork, Namda, Crewel embroidery. Music: Sufiana Kalam, Chakri, Rouf dance.
+TRAVEL: SXR Srinagar airport, IXJ Jammu airport, Jammu railway station, shared sumos, JKSRTC buses. Best seasons: spring March-May (tulips), summer June-Aug, autumn Sep-Nov (chinar), winter Dec-Feb (skiing).
+FESTIVALS: Tulip Garden (April), Eid, Baisakhi, Hemis Festival (Ladakh), Shikara Festival, Sindhu Darshan, Losar.
+SHOPPING: Lal Chowk, Residency Road, Polo View Market, Bund Bazaar, Raghunath Bazaar Jammu.
+${lmap[lang]}
+Keep responses warm, helpful, detailed. Use emojis. Use bullet points for lists. Be proud of J&K!`;
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sys,messages:hist.slice(-8)})
+    });
+    const d=await r.json();
+    removeTyping();
+    if(d.content&&d.content[0]){
+      const rep=d.content[0].text;
+      hist.push({role:'assistant',content:rep});
+      addBot(rep.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>').replace(/^- (.*)/gm,'<li>$1</li>').replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>'));
+    }else if(d.error){
+      addBot('❌ API Error: '+(d.error.message||'Check your API key'));
+    }else{addBot('❌ Something went wrong. Try again!')}
+  }catch(e){removeTyping();addBot('⚠️ Network error. Check your connection and try again.')}
+  busy=false;document.getElementById('sb').disabled=false;
+}
+</script>
+</body>
+</html>
